@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<something-else-entirely>
+	<proxool>
+		<!-- 连接池名称 -->
+		<alias>DBPool</alias>
+		<!-- proxool只能管理由自己产生的连接 -->
+		<driver-url>jdbc:mysql://localhost:3306/coursemanage</driver-url>
+		<driver-class>com.mysql.jdbc.Driver</driver-class>
+		<driver-properties>
+			<property name="user" value="root" />
+			<property name="password" value="root" />
+		</driver-properties>
+		<house-keeping-sleep-time>9000</house-keeping-sleep-time>
+		<!-- 未有空闲连接可以分配而在队列中等候的最大请求数，超过的用户就不被接受 -->
+		<maximum-new-connections>20</maximum-new-connections>
+		<!-- 最少保持的连接数 -->
+		<prototype-count>5</prototype-count>
+		<!-- 最大连接数 -->
+		<maximum-connection-count>100</maximum-connection-count>
+		<!-- 最小连接数 -->
+		<minimum-connection-count>10</minimum-connection-count>
+	</proxool>
+</something-else-entirely>
