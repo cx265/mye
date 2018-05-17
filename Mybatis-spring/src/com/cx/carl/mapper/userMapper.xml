@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 必须是接口的全类名  -->
+<mapper namespace="com.cx.carl.mapper.UserMapper">
+
+	<resultMap type="User" id="userResult">
+		<result column="user_id" property="id"/>
+		<result column="user_name" property="name"/>
+		<result column="user_birthday" property="birthday"/>
+		<result column="user_salary" property="salary"/>
+	</resultMap>
+	
+	<!-- 取得插入数据后的id -->
+	<insert id="insert" keyColumn="user_id" keyProperty="id" useGeneratedKeys="true">
+		insert into s_user(user_name,user_birthday,user_salary)
+		values(#{name},#{birthday},#{salary})
+	</insert>
+
+	<update id="update">
+		update s_user
+		<set>
+			<if test="user_name != null and user_name != '' ">user_name = #{name},</if>
+			<if test="user_birthday != null and user_birthday != '' ">user_birthday = #{age},</if>
+			<if test="user_salary != null and user_salary != '' ">user_salary = #{salary},</if>
+		</set>
+		where user_id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from s_user
+		where user_id = #{id}
+	</delete>
+
+	<select id="selectById" resultMap="userResult">
+		select *
+		from s_user
+		where user_id = #{id}
+	</select>
+	
+	<select id="selectAll" resultMap="userResult">
+		select * 
+		from s_user
+	</select>
+
+</mapper>

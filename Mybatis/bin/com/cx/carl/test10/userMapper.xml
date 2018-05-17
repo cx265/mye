@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cx.carl.test10.userMapper">
+	
+	<!-- 动态条件分页查询 --> 
+	<sql id="sql_count"> 
+		select count(*) 
+	</sql> 
+	<sql id="sql_select"> 
+		select * 
+	</sql> 
+	<sql id="sql_where"> 
+		from user 
+		<dynamic prepend="where"> 
+			<isNotEmpty prepend="and" property="name"> 
+				name like '%$name$%' 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="path"> 
+				path like '%path$%' 
+			</isNotEmpty> 
+			<isNotEmpty prepend="and" property="area_id"> 
+				area_id = #area_id# 
+			</isNotEmpty> 
+			<isNotEmpty prepend="and" property="hided"> 
+				hided = #hided# 
+			</isNotEmpty> 
+		</dynamic> 
+		<dynamic prepend=""> 
+			<isNotNull property="_start"> 
+				<isNotNull property="_size"> 
+					limit #_start#, #_size# 
+				</isNotNull> 
+			</isNotNull> 
+		</dynamic> 
+	</sql>
+	<select id="findByParamsForCount" parameterClass="map" resultClass="int"> 
+		<include refid="sql_count"/> 
+		<include refid="sql_where"/> 
+	</select>
+	<select id="findByParams" parameterClass="map" resultMap="icp.result_base"> 
+		<include refid="sql_select"/> 
+		<include refid="sql_where"/> 
+	</select>
+</mapper>
