@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<!-- 导入外部的properties文件
+    <context:property-placeholder location="classpath:jdbc.properties"/> -->
+    <!-- 自动扫描与装配bean -->
+    <context:component-scan base-package="cx.carl.*"></context:component-scan>
+    <!-- 启用spring注解支持 -->
+	<context:annotation-config></context:annotation-config>
+	<bean name="loginAction" class="cx.carl.action.LoginAction" scope="prototype"></bean>
+	
+	<bean id="baseDAO" class="cx.carl.dao.BaseDAO">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="adminDAO" class="cx.carl.dao.impl.AdminDAOImpl">
+		<property name="baseDAO" ref="baseDAO"></property>
+	</bean>
+	<bean id="adminService" class="cx.carl.service.impl.AdminServiceImpl">
+		<property name="adminDAO" ref="adminDAO"></property>
+	</bean>
+	<bean id="adminAction" class="cx.carl.action.AdminAction" scope="prototype">
+		<property name="adminService" ref="adminService"></property>
+	</bean>
+	
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/ssh"></property>
+		<property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+		<property name="initialPoolSize" value="5"></property>
+		<property name="minPoolSize" value="5"></property>
+		<property name="maxPoolSize" value="10"></property>
+		<property name="acquireIncrement" value="5"></property>
+		<property name="user" value="root"></property>
+		<property name="password" value="root"></property>
+		<!-- 控制数据源内加载的PreparedStatements数量。如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。Default: 0 -->
+        <property name="maxStatements" value="8"></property>
+		<!--maxStatementsPerConnection定义了连接池内单个连接所拥有的最大缓存statements数。Default: 0 -->
+		<property name="maxStatementsPerConnection" value="5"></property>
+		<!--最大空闲时间,1800秒内未使用则连接被丢弃。若为0则永不丢弃。Default: 0 -->
+		<property name="maxIdleTime" value="1800"></property>
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation" value="classpath:hibernate.cfg.xml">
+		</property>
+		<property name="mappingLocations"
+			value="classpath:cx/carl/entity/*.hbm.xml"></property>
+	</bean>
+	<!-- 1.配置hibernate的事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<!-- 2.配置事务属性 -->
+	<tx:advice id="txActive" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="modify*" propagation="REQUIRED" />
+			<!--hibernate4必须配置为开启事务,否则 getCurrentSession()获取不到-->
+			<tx:method name="*" propagation="REQUIRED" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 3.配置事务切入点，再把事务属性和事务切入点关联起来 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* cx.carl.service.*.*(..))" id="txPoint"/>
+		<aop:advisor advice-ref="txActive" pointcut-ref="txPoint"/>
+	</aop:config>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+</beans>

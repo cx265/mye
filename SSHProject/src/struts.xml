@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<!-- 配置为开发模式，一旦文件改动，不需要重启，会立即生效 -->
+	<constant name="struts.devMode" value="true" />
+	<!-- 当struts 2的配置文件修改后，系统是否自动重新加载该文件，默认值为false（生产环境下使用），开发阶段最好打开 -->
+	<constant name="struts.configuration.xml.reload" value="true" />
+	<!-- Struts 2框架默认加载的配置文件,则多个后缀之间以英文逗号（,）隔开 -->
+	<constant name="struts.configuration.files" value="struts-default.xml,struts-plugin.xml,struts.xml" />
+	<!-- 把扩展名设置为action,多个请求后缀，则多个后缀之间以英文逗号（,）隔开。若想去掉后缀，设为","即可 -->
+	<constant name="struts.action.extension" value="action" />
+	<!-- 指定Web应用的默认编码集 -->
+	<constant name="struts.i18n.encoding" value="utf-8"></constant>
+	<!-- 国际化资源文件,多个资源文件的文件名以英文逗号（,）隔开 -->
+	<constant name="struts.custom.i18n.resources" value="application" />
+	<!-- 把主题配置为simple,默认值是xhtml，可以为simple,xhtml或ajax -->
+	<constant name="struts.ui.theme" value="simple" />
+	<!-- 指定视图主题所需要模板文件的位置，该属性的默认值是template -->
+	<constant name="struts.ui.templateDir" value="template"/>
+	<!-- 指定模板文件的后缀，该属性的默认属性值是ftl。该属性还允许使用ftl、vm或jsp，分别对应FreeMarker、 Velocity和JSP模板 -->
+	<constant name="struts.ui.templateSuffix" value="ftl"/>
+	<!-- 将Action的创建交给spring来管理 -->
+    <constant name="struts.objectFactory" value="spring" />
+	
+	<package name="default" namespace="/" extends="struts-default">
+		<action name="test" class="TestAction">
+            <result name="success">/index1.jsp</result>
+        </action>
+        <action name="pageLogin" class="AdminAction" method="pageLogin">
+			<result name="pageLogin">/login.jsp</result>
+			<result name="error">/index.jsp</result>
+		</action>
+		<action name="login" class="AdminAction" method="login">
+            <result name="success">/success.jsp</result>
+            <result name="fail">/fail.jsp</result>
+        </action>
+	</package>
+</struts>    
