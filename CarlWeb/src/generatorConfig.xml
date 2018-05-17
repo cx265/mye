@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+  PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+
+	<!-- targetRuntime="MyBatis3Simple":生成简单版的CRUD MyBatis3:豪华版 -->
+	<context id="MysqlTables" targetRuntime="MyBatis3">
+		<!-- JavaBean 实现 序列化 接口 -->
+		<plugin type="org.mybatis.generator.plugins.SerializablePlugin"></plugin>
+		<!-- generator entity时,生成toString -->
+		<plugin type="org.mybatis.generator.plugins.ToStringPlugin" />
+		<!-- 自定义物理分页  可生成支持Mysql数据的limit  不支持Oracle -->
+		<plugin type="org.mybatis.generator.plugins.page.PaginationPlugin" />
+		<!-- 自定义查询指定字段  -->
+		<plugin type="org.mybatis.generator.plugins.field.FieldsPlugin" />
+		<!-- 开启支持内存分页   可生成 支持内存分布的方法及参数  
+		<plugin type="org.mybatis.generator.plugins.RowBoundsPlugin" />
+		-->
+		<!-- generate entity时，生成hashcode和equals方法
+		<plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
+		-->
+		
+		<!-- 此处是将Example改名,想改成什么都行~    -->      
+		<plugin type="org.mybatis.generator.plugins.RenameExampleClassPlugin">
+			<property name="searchString" value="Example$" />
+			<property name="replaceString" value="Query" />
+		</plugin>
+		<!-- 此处是将UserMapper.xml改名为UserDao.xml -->        
+		<plugin type="org.mybatis.generator.plugins.rename.RenameSqlMapperPlugin">
+			<property name="searchString" value="Mapper" />
+		 	<property name="replaceString" value="Dao" />
+		</plugin>
+		<!-- 此处是将UserMapper改名为UserDao -->        
+		<plugin type="org.mybatis.generator.plugins.rename.RenameJavaMapperPlugin">
+			<property name="searchString" value="Mapper$" />
+			<property name="replaceString" value="Dao" />
+		</plugin>
+		
+		<commentGenerator type="org.mybatis.generator.plugins.comment.MyCommentGenerator">
+			<!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+		
+		<!-- jdbcConnection：指定如何连接到目标数据库 driverClass="oracle.jdbc.OracleDriver" connectionURL="jdbc:oracle:thin:@127.0.0.1:1521:shadow"  -->
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://localhost:3306/shadow?allowMultiQueries=true"
+			userId="root" password="root">
+		</jdbcConnection>
+
+		<!-- 默认false，把JDBC DECIMAL 和 NUMERIC 类型解析为 Integer，为 true时把JDBC DECIMAL 和  NUMERIC 类型解析为java.math.BigDecimal -->
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+
+		<!-- javaModelGenerator：指定javaBean的生成策略 targetPackage="test.model"：目标包名 
+			targetProject="\MBGTestProject\src"：目标工程(路径) -->
+		<javaModelGenerator targetPackage="priv.cx.carl.ssm.bean" targetProject=".\src">
+			<!-- enableSubPackages:是否让schema作为包的后缀 -->
+			<property name="enableSubPackages" value="true" />
+			<property name="trimStrings" value="true" />
+		</javaModelGenerator>
+
+		<!-- sqlMapGenerator：sql映射生成策略： -->
+		<sqlMapGenerator targetPackage="priv.cx.carl.ssm.mapper" targetProject=".\src">
+			<!-- enableSubPackages:是否让schema作为包的后缀 -->
+			<property name="enableSubPackages" value="true" />
+		</sqlMapGenerator>
+
+		<!-- javaClientGenerator:指定mapper接口所在的位置 -->
+		<javaClientGenerator type="XMLMAPPER"
+			targetPackage="priv.cx.carl.ssm.mapper" targetProject=".\src">
+			<!-- enableSubPackages:是否让schema作为包的后缀 -->
+			<property name="enableSubPackages" value="true" />
+		</javaClientGenerator>
+
+		<!-- 指定要逆向分析哪些表：根据表要创建javaBean -->
+		<table schema="" tableName="tbl_employee" domainObjectName="Employee"></table>
+		<!-- 指定数据库所有表 <table schema="" tableName="%"/> -->
+		<!-- 有些表的字段需要指定java类型
+		<table schema="" tableName="tbl_employee">
+			<columnOverride column="name" javaType="String" />
+		</table>
+		 -->
+		 
+		<!-- 订单模块表 -->
+		<table schema="" tableName="tbl_order" domainObjectName="order.Order">
+			<columnOverride column="state" javaType="Integer"/>
+		</table>
+		<table schema="" tableName="tbl_detail" domainObjectName="order.Detail"/>
+		
+	</context>
+</generatorConfiguration>

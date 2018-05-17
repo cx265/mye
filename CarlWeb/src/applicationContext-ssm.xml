@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+						http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+						http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context-4.3.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+	<!-- 导入配置文件 -->
+	<!-- <context:property-placeholder location="classpath:jdbc.properties"/> -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 扫描类包，将标注Spring注解的类自动转化Bean，同时完成Bean的注入 -->
+	<context:component-scan base-package="priv.cx.carl.ssm.*">
+		<!-- 除了（@Controller注解）外的全部 -->
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<!-- 数据源 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<!-- <property name="driverClassName" value="${jdbc.driverClassName}" /> -->
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${jdbc.initialSize}" />
+		<property name="maxActive" value="${jdbc.maxActive}" />
+		<!-- filters：统计监控信息，value是一个string,支持组合配置，如wall,stat,mergeStat,log4j,config那么问题来了，如果自定义的filter该如何配置呢，可以通过bean的形式添加 -->
+		<property name="filters" value="config" />
+		<property name="connectionProperties"
+			value="config.decrypt=true;config.decrypt.key=${jdbc.publickey}" />
+		<property name="proxyFilters">
+			<list>
+				<ref bean="wall-filter" />
+				<ref bean="stat-filter" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- druid监控统计bean 对应dataSource中的proxyFilters -->
+	<bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+		<!-- 合并未参数化的sql -->
+		<property name="mergeSql" value="true" />
+		<property name="slowSqlMillis" value="3000" />
+		<property name="logSlowSql" value="true" />
+	</bean>
+	<bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter"></bean>
+
+	<!-- spring事务管理 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<!-- DAO层分装 -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<!-- 开启基于注解的事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- 整合mybatis 目的：1、spring管理所有组件。mapper的实现类。 service==>Dao @Autowired:自动注入mapper； 
+		2、spring用来管理事务，spring声明式事务 -->
+	<!-- 创建出SqlSessionFactory对象 -->
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- configLocation指定全局配置文件的位置 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+		<!--mapperLocations: 指定mapper文件的位置 -->
+		<property name="mapperLocations" value="classpath:priv/cx/carl/ssm/mapper/*.xml"></property>
+	</bean>
+
+	<!--配置一个可以进行批量执行的sqlSession -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactoryBean"></constructor-arg>
+		<constructor-arg name="executorType" value="BATCH"></constructor-arg>
+	</bean>
+
+	<!-- 新的写法（报错）：扫描所有的mapper接口的实现，让这些mapper能够自动注入 <mybatis-spring:scan base-package="priv.cx.carl.ssm.dao"></mybatis-spring:scan> -->
+	<!-- 旧的写法 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="priv.cx.carl.ssm.dao"></property>
+	</bean>
+
+	<!-- quartz 需要扫描包scheduler -->
+	<bean name="firstScheduledJobDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="priv.cx.carl.ssm.scheduler.FirstScheduledJob" />
+		<property name="jobDataMap">
+			<map>
+				<entry key="scheduledJobBean" value-ref="scheduledJobBean" />
+			</map>
+		</property>
+		<property name="durability" value="true" />
+	</bean>
+	<bean id="firstCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="firstScheduledJobDetail" />
+		<property name="cronExpression" value="0/5 * * ? * *" />
+		<property name="startDelay" value="10000" />
+	</bean>
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobDetails">
+			<list>
+				<ref bean="firstScheduledJobDetail" />
+			</list>
+		</property>
+		<property name="triggers">
+			<list>
+				<ref bean="firstCronTrigger" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

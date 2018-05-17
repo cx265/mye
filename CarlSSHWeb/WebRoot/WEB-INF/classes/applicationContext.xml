@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	xmlns:tx="http://www.springframework.org/schema/tx">
+
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+			</props>
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>com/cx/carl/model/Course.hbm.xml</value>
+				<value>com/cx/carl/model/Courseevaluation.hbm.xml</value>
+				<value>com/cx/carl/model/Coursetime.hbm.xml</value>
+				<value>com/cx/carl/model/Location.hbm.xml</value>
+				<value>com/cx/carl/model/Sourcemanage.hbm.xml</value>
+				<value>com/cx/carl/model/Student.hbm.xml</value>
+				<value>com/cx/carl/model/Studentcourse.hbm.xml</value>
+				<value>com/cx/carl/model/Studenthomework.hbm.xml</value>
+				<value>com/cx/carl/model/Note.hbm.xml</value>
+				<value>com/cx/carl/model/Teacher.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver">
+		</property>
+		<property name="url" value="jdbc:mysql://localhost:3306/coursemanage"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="root"></property>
+	</bean>
+
+	<bean id="baseDAO" class="com.cx.carl.dao.impl.BaseDAO">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"></ref>
+		</property>
+	</bean>
+
+	<bean id="teacherDAO" class="com.cx.carl.dao.impl.TeacherDAO"
+		parent="baseDAO">
+	</bean>
+
+	<bean id="teacherService" class="com.cx.carl.service.impl.TeacherService">
+		<property name="teacherDAO">
+			<ref bean="teacherDAO" />
+		</property>
+	</bean>
+
+	<bean id="loginCheckAction" class="com.cx.carl.action.LoginCheckAction"
+		scope="prototype">
+		<property name="teacherService">
+			<ref bean="teacherService" />
+		</property>
+	</bean>
+
+</beans>
