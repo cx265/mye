@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+	<service name="parkingService" provider="java:RPC">
+		<description>parking Service</description>
+		<!-- 对象的创建交给了Spring的IOC容器 -->
+		<parameter name="SpringBeanName">parkingWebService</parameter>
+		<parameter name="servicePath">services</parameter>
+		<parameter name="ServiceObjectSupplier">org.apache.axis2.extensions.spring.receivers.SpringServletContextObjectSupplier</parameter>
+		<operation name="springHello">
+	        <messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+	    </operation>
+		<!-- 在这里最值得注意的是<messageReceivers>元素，该元素用于设置处理WebService方法的处理器。 -->
+		<messageReceivers>
+			<messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out"
+				class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+			<messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
+				class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver" />
+		</messageReceivers>
+	</service>
+</serviceGroup>   

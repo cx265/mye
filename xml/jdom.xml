@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<!--a comment-->
+	<hello sohu="www.sohu.com">
+		<world test="hehe" />
+		<cx zzz="1111" xxx="2222" />
+	</hello>
+</root>

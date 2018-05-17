@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+  <add-on id="web.struts2.rest"/>
+  <add-on id="web.struts2.osgi"/>
+  <add-on id="web.struts2.jfreechart"/>
+  <add-on id="web.struts2.pell-multipart"/>
+  <add-on id="web.struts2.tiles"/>
+  <add-on id="web.struts2.plexus"/>
+  <add-on id="web.struts2.oval"/>
+  <add-on id="web.struts2.struts1"/>
+  <add-on id="web.struts2.codebehind"/>
+  <add-on id="web.struts2.jasper"/>
+  <add-on id="web.struts2.config-browser"/>
+  <add-on id="web.struts2.spring"/>
+  <add-on id="web.struts2.sitemesh"/>
+  <add-on id="web.struts2.test"/>
+  <add-on id="web.struts2.javatemplates"/>
+  <add-on id="web.struts2.sitegraph"/>
+  <add-on id="web.struts2.dojo"/>
+  <add-on id="web.struts2.dwr"/>
+</project>
