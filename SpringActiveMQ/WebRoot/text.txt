@@ -1,0 +1,4 @@
+1.首先运行ActiveMQ
+http://localhost:8161/admin/queues.jsp
+2.tomcat运行项目
+http://localhost:8080/SpringActiveMQ/index.jsp
